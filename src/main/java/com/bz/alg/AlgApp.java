@@ -150,6 +150,11 @@ public class AlgApp {
                 )
         );
 
+        System.out.println("ladderLength");
+        System.out.println(ladderLength("cat", "dog", List.of("dat", "dot", "dog")));
+        System.out.println(ladderLength("abcde", "edcba", List.of("abcda", "abcba", "adcba", "edcba")));
+        System.out.println(ladderLength("abc", "ddd", List.of("abz", "aby", "abx", "abw", "abv", "abd", "add", "ddd")));
+
     }
 
     private static class MyRecord implements Comparable<MyRecord> {
@@ -425,4 +430,62 @@ public class AlgApp {
     public enum Side {
         LEFT, RIGHT
     }
+
+    public static int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        if (!wordList.contains(endWord)){
+            return 0;
+        }
+        // Convert wordList to a set for fast lookup
+        Set<String> wordSet = new HashSet<>(wordList);
+
+        // BFS setup
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(beginWord);
+
+        // Store the visited words to avoid revisiting
+        Set<String> visited = new HashSet<>();
+        visited.add(beginWord);
+
+        // Start BFS
+        int level = 1;  // Level starts at 1 (beginWord is the first word)
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            // Process each word at the current level
+            for (int i = 0; i < size; i++) {
+                String word = queue.poll();
+
+                // Try all possible transformations (change each letter one at a time)
+                for (int j = 0; j < word.length(); j++) {
+                    char[] charArray = word.toCharArray();
+
+                    // Try all 26 possible characters for each position
+                    for (char c = 'a'; c <= 'z'; c++) {
+                        charArray[j] = c;
+                        String newWord = new String(charArray);
+
+                        // If the new word is the endWord, return the result
+                        if (newWord.equals(endWord)) {
+                            return level + 1;
+                        }
+                        //System.out.println(ladderLength("abc", "ddd", List.of("abz", "aby", "abx", "abw", "abv", "abd", "add", "ddd")));
+
+                        // If the new word is valid and hasn't been visited, add it to the queue
+                        if (wordSet.contains(newWord) && !visited.contains(newWord)) {
+                            visited.add(newWord);
+                            queue.offer(newWord);
+                        }
+                    }
+                }
+            }
+
+            // Increase the level (depth of BFS)
+            level++;
+        }
+
+        // If no transformation path exists
+        return 0;
+    }
+
 }
