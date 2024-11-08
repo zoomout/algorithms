@@ -155,6 +155,9 @@ public class AlgApp {
         System.out.println(ladderLength("abcde", "edcba", List.of("abcda", "abcba", "adcba", "edcba")));
         System.out.println(ladderLength("abc", "ddd", List.of("abz", "aby", "abx", "abw", "abv", "abd", "add", "ddd")));
 
+        System.out.println("topKFrequent");
+        System.out.println(topKFrequent(new String[]{"i", "love", "leetcode", "i", "love", "coding"}, 2));
+
     }
 
     private static class MyRecord implements Comparable<MyRecord> {
@@ -432,7 +435,7 @@ public class AlgApp {
     }
 
     public static int ladderLength(String beginWord, String endWord, List<String> wordList) {
-        if (!wordList.contains(endWord)){
+        if (!wordList.contains(endWord)) {
             return 0;
         }
         // Convert wordList to a set for fast lookup
@@ -487,5 +490,30 @@ public class AlgApp {
         // If no transformation path exists
         return 0;
     }
+
+    public static List<String> topKFrequent(String[] words, int k) {
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        PriorityQueue<String> freqQueue = new PriorityQueue<>((word1, word2) -> {
+            int freq1 = hashMap.get(word1);
+            int freq2 = hashMap.get(word2);
+            if (freq1 == freq2) {
+                return word1.compareTo(word2);
+            }
+            return freq2 - freq1;
+        });
+
+        for (String word : words) {
+            hashMap.put(word, hashMap.getOrDefault(word, 0) + 1);
+        }
+        for (String word : hashMap.keySet()) {
+            freqQueue.offer(word);
+        }
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < k; i++) {
+            result.add(freqQueue.poll());
+        }
+        return result;
+    }
+
 
 }
