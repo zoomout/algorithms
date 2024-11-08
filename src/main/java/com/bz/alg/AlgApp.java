@@ -161,6 +161,14 @@ public class AlgApp {
         System.out.println("customSortString");
         System.out.println(customSortString("bcafg", "bdca"));
 
+        System.out.println("numIslands");
+        System.out.println(numIslands(new char[][]{
+                {'1', '0', '1', '1'},
+                {'0', '1', '1', '1'},
+                {'0', '1', '0', '0'},
+                {'0', '1', '0', '1'},
+        }));
+
     }
 
     private static class MyRecord implements Comparable<MyRecord> {
@@ -523,12 +531,12 @@ public class AlgApp {
     public static String customSortString(String order, String s) {
         int[] weights = new int[26];
 
-        for (int i=0; i<order.length(); i++){
-            weights[order.charAt(i)-97] = i;
+        for (int i = 0; i < order.length(); i++) {
+            weights[order.charAt(i) - 97] = i;
         }
 
-        PriorityQueue<Character> pq = new PriorityQueue<>((c1,c2) -> {
-            return weights[c1-97] - weights[c2-97];
+        PriorityQueue<Character> pq = new PriorityQueue<>((c1, c2) -> {
+            return weights[c1 - 97] - weights[c2 - 97];
         });
 
 
@@ -537,11 +545,43 @@ public class AlgApp {
         }
 
         char[] result = new char[s.length()];
-        int i=0;
-        while(!pq.isEmpty()) {
-            result[i++]=pq.poll();
+        int i = 0;
+        while (!pq.isEmpty()) {
+            result[i++] = pq.poll();
         }
         return new String(result);
+    }
+
+    public static int numIslands(char[][] grid) {
+
+        if (grid == null || grid.length == 0) {
+            return 0;
+        }
+        int rows = grid.length;
+        int columns = grid[0].length;
+        int count = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (grid[i][j] == '1') {
+                    count++;
+                    explore(grid, i, j);
+                }
+            }
+        }
+        return count;
+    }
+
+    private static void explore(char[][] grid, int i, int j) {
+        int rows = grid.length;
+        int columns = grid[0].length;
+        if (i < 0 || j < 0 || i >= rows || j >= columns || grid[i][j] == '0') {
+            return;
+        }
+        grid[i][j] = '0';
+        explore(grid, i + 1, j);
+        explore(grid, i - 1, j);
+        explore(grid, i, j + 1);
+        explore(grid, i, j - 1);
     }
 
 
