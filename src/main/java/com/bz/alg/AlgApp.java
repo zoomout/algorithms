@@ -158,6 +158,9 @@ public class AlgApp {
         System.out.println("topKFrequent");
         System.out.println(topKFrequent(new String[]{"i", "love", "leetcode", "i", "love", "coding"}, 2));
 
+        System.out.println("customSortString");
+        System.out.println(customSortString("bcafg", "bdca"));
+
     }
 
     private static class MyRecord implements Comparable<MyRecord> {
@@ -492,6 +495,8 @@ public class AlgApp {
     }
 
     public static List<String> topKFrequent(String[] words, int k) {
+        TreeMap<String, Integer> map = new TreeMap<>();
+
         HashMap<String, Integer> hashMap = new HashMap<>();
         PriorityQueue<String> freqQueue = new PriorityQueue<>((word1, word2) -> {
             int freq1 = hashMap.get(word1);
@@ -513,6 +518,30 @@ public class AlgApp {
             result.add(freqQueue.poll());
         }
         return result;
+    }
+
+    public static String customSortString(String order, String s) {
+        int[] weights = new int[26];
+
+        for (int i=0; i<order.length(); i++){
+            weights[order.charAt(i)-97] = i;
+        }
+
+        PriorityQueue<Character> pq = new PriorityQueue<>((c1,c2) -> {
+            return weights[c1-97] - weights[c2-97];
+        });
+
+
+        for (char c : s.toCharArray()) {
+            pq.offer(c);
+        }
+
+        char[] result = new char[s.length()];
+        int i=0;
+        while(!pq.isEmpty()) {
+            result[i++]=pq.poll();
+        }
+        return new String(result);
     }
 
 
