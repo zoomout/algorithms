@@ -169,6 +169,21 @@ public class AlgApp {
                 {'0', '1', '0', '1'},
         }));
 
+        System.out.println("binaryTreePaths");
+        System.out.println(binaryTreePaths(new TreeNode(
+                                1,
+                                new TreeNode(2,
+                                        new TreeNode(4),
+                                        new TreeNode(5)
+                                ),
+                                new TreeNode(3,
+                                        null,
+                                        new TreeNode(7)
+                                )
+                        )
+                )
+        );
+
     }
 
     private static class MyRecord implements Comparable<MyRecord> {
@@ -584,5 +599,33 @@ public class AlgApp {
         explore(grid, i, j - 1);
     }
 
+    public static List<String> binaryTreePaths(TreeNode root) {
+        List<String> result = new ArrayList<>();
+        if (root != null) {
+            dfs(root, "", result);
+        }
+        return result;
+    }
+
+    // Depth First Search helper function
+    private static void dfs(TreeNode node, String path, List<String> result) {
+        // If the current node is null, just return
+        if (node == null) {
+            return;
+        }
+
+        // Append current node's value to the path
+        path += Integer.toString(node.val);
+
+        // If it's a leaf node, add the path to the result list
+        if (node.left == null && node.right == null) {
+            result.add(path);
+        } else {
+            // Otherwise, continue the search on the left and right children
+            path += "->"; // Add the separator for the next node in the path
+            dfs(node.left, path, result);
+            dfs(node.right, path, result);
+        }
+    }
 
 }
