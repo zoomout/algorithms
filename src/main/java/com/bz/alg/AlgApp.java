@@ -2,6 +2,7 @@ package com.bz.alg;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 
 public class AlgApp {
 
@@ -184,6 +185,17 @@ public class AlgApp {
                 )
         );
 
+        System.out.println("orderOfLargestPlusSign");
+        System.out.println(orderOfLargestPlusSign(5, new int[][]{{4, 2}}));
+        System.out.println(orderOfLargestPlusSign(2, new int[][]{{0, 0}, {0, 1}, {1, 0}}));
+        System.out.println(orderOfLargestPlusSign(1, new int[][]{{0, 0}}));
+        System.out.println(orderOfLargestPlusSign(2, new int[][]{{0, 1}, {1, 0}, {1, 1}}));
+
+        System.out.println("reverseLinkedList");
+        System.out.println(reverseLinkedList(new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))))));
+
+        System.out.println("lengthOfLIS");
+        System.out.println(lengthOfLIS(new int[]{1, 2, 3, 4, 3, 1, -105, -104, -103, -102, -101}));
     }
 
     private static class MyRecord implements Comparable<MyRecord> {
@@ -626,6 +638,155 @@ public class AlgApp {
             dfs(node.left, path, result);
             dfs(node.right, path, result);
         }
+    }
+
+    public static int orderOfLargestPlusSign(int n, int[][] mines) {
+        int count = 0;
+        HashSet<Node> minesSet = new HashSet<>();
+        for (int[] mine : mines) {
+            minesSet.add(new Node(mine[0], mine[1]));
+        }
+        Queue<Node> q = new LinkedList<>();
+        int center = n / 2;
+        HashSet<Node> visited = new HashSet<>();
+        q.offer(new Node(center, center));
+
+        int result = 0;
+        while (!q.isEmpty()) {
+            count++;
+            Node node = q.poll();
+            int i = node.i;
+            int j = node.j;
+
+            if (i < 0 || j < 0 || i > n - 1 || j > n - 1 || visited.contains(node)) {
+                continue;
+            }
+            visited.add(node);
+
+            if (!minesSet.contains(new Node(i, j))) {
+
+                int disToEdge = Math.min(Math.min(j, n - 1 - j), Math.min(i, n - 1 - i));
+
+                int crossUp = testLeaf(DEC.apply(i), DEC, j, SAME, disToEdge, n, minesSet);
+                int crossDown = testLeaf(INC.apply(i), INC, j, SAME, disToEdge, n, minesSet);
+                int crossLeft = testLeaf(i, SAME, DEC.apply(j), DEC, disToEdge, n, minesSet);
+                int crossRight = testLeaf(i, SAME, INC.apply(j), INC, disToEdge, n, minesSet);
+                int crossOrder = 1 + Math.min(Math.min(crossUp, crossDown), Math.min(crossLeft, crossRight));
+                result = Math.max(result, crossOrder);
+
+                if (result == disToEdge + 1) {
+                    System.out.println("Count = " + count);
+                    return result;
+                }
+            }
+
+            Node left = new Node(i, j - 1);
+            Node upLeft = new Node(i - 1, j - 1);
+            Node up = new Node(i - 1, j);
+            Node upRight = new Node(i - 1, j + 1);
+            Node right = new Node(i, j + 1);
+            Node downRight = new Node(i + 1, j + 1);
+            Node down = new Node(i + 1, j);
+            Node downLeft = new Node(i + 1, j - 1);
+            q.offer(left);
+            q.offer(upLeft);
+            q.offer(up);
+            q.offer(upRight);
+            q.offer(right);
+            q.offer(downRight);
+            q.offer(down);
+            q.offer(downLeft);
+        }
+        System.out.println("Count2 = " + count);
+        return result;
+    }
+
+    static Function<Integer, Integer> INC = x -> ++x;
+    static Function<Integer, Integer> DEC = x -> --x;
+    static Function<Integer, Integer> SAME = x -> x;
+
+    private static int testLeaf(
+            int i,
+            Function<Integer, Integer> iFunc,
+            int j,
+            Function<Integer, Integer> jFunc,
+            int disToEdge,
+            int n,
+            HashSet<Node> minesSet) {
+        if (disToEdge < 0 || i < 0 || j < 0 || i > n - 1 || j > n - 1 || minesSet.contains(new Node(i, j))) {
+            return 0;
+        }
+
+        return testLeaf(iFunc.apply(i), iFunc, jFunc.apply(j), jFunc, disToEdge - 1, n, minesSet) + 1;
+    }
+
+    public static class Node {
+        public Node(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+
+        int i;
+        int j;
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null || getClass() != obj.getClass())
+                return false;
+            Node node = (Node) obj;
+            return i == node.i && j == node.j;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(i, j);
+        }
+
+        @Override
+        public String toString() {
+            return "[" + i + "," + j + "]";
+        }
+    }
+
+    public static ListNode reverseLinkedList(ListNode head) {
+        ListNode current = head; // 3-4-5-null
+        ListNode previous = null; // 2-1-null
+        while (current != null) {
+            ListNode next = current.next;
+            current.next = previous;
+            previous = current;
+            current = next;
+        }
+        return previous;
+    }
+
+    public static int lengthOfLIS(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        // List to store the smallest tail of all increasing subsequences of different lengths
+        ArrayList<Integer> dp = new ArrayList<>();
+
+        for (int num : nums) {
+            int pos = Collections.binarySearch(dp, num);
+            if (pos < 0) {
+                // If num is not found, binarySearch returns (-insertionPoint - 1)
+                pos = -(pos + 1);
+            }
+
+            // If pos is equal to the size of dp, append the element
+            if (pos < dp.size()) {
+                dp.set(pos, num);
+            } else {
+                dp.add(num);
+            }
+        }
+
+        // The size of dp gives the length of the longest increasing subsequence
+        return dp.size();
     }
 
 }
